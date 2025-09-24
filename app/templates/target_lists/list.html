@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h2>Target Lists</h2>
+  <a class="btn btn-primary" href="{{ url_for('target_lists.upload_target_list') }}">Upload</a>
+</div>
+<table class="table table-sm table-striped">
+  <thead><tr><th>UID</th><th>Title</th><th>Use Case</th><th>Clients</th><th>Uploaded</th></tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.list_uid }}</td>
+      <td>{{ r.title }}</td>
+      <td>{{ r.use_case.value }}</td>
+      <td>
+        {% for c in r.clients %}{{ c.pharma }} — {{ c.brand }}{% if not loop.last %}, {% endif %}{% endfor %}
+      </td>
+      <td>{{ r.uploaded_at.strftime("%Y-%m-%d %H:%M") }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

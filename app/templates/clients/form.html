@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>New Client</h2>
+<form method="post" class="row g-3">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="col-md-6">
+    <label class="form-label">Pharma</label>
+    <input name="pharma" class="form-control" required>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Brand</label>
+    <input name="brand" class="form-control" required>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Agency</label>
+    <input name="agency" class="form-control">
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Indication</label>
+    <input name="indication" class="form-control">
+  </div>
+  <div class="col-12">
+    <button class="btn btn-success">Create</button>
+  </div>
+</form>
+{% endblock %}

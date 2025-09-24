@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Contract {{ contract.contract_uid }} — {{ contract.name }}</h2>
+<p class="text-muted">{{ contract.client.pharma }} — {{ contract.client.brand }} | Flight: {{ contract.flight_start or "?" }} → {{ contract.flight_end or "?" }}</p>
+
+<div class="mb-3">
+  <a class="btn btn-sm btn-primary" href="{{ url_for('contracts.create_campaign', contract_id=contract.id) }}">Add Campaign</a>
+  <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('contracts.create_placement') }}">New Placement</a>
+</div>
+
+{% for camp in contract.campaigns %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ camp.name }}</h5>
+      <a class="btn btn-sm btn-outline-primary" href="{{ url_for('contracts.create_program', campaign_id=camp.id) }}">Add Program</a>
+      <ul class="mt-2">
+        {% for prog in camp.programs %}
+          <li>
+            <strong>{{ prog.name }}</strong> ({{ prog.status }}) {{ prog.start_date or "" }} → {{ prog.end_date or "" }}
+            <div class="small text-muted">Placements:
+              {% for pl in prog.placements %} {{ pl.name }}{% if not loop.last %}, {% endif %}{% else %} none{% endfor %}
+            </div>
+            <div class="small text-muted">Target Lists:
+              {% for ptl in prog.program_target_lists %} {{ ptl.target_list.title }}{% if not loop.last %}, {% endif %}{% else %} none{% endfor %}
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% else %}
+  <p>No campaigns yet.</p>
+{% endfor %}
+{% endblock %}

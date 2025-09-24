@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>New Contract</h2>
+<form method="post" class="row g-3">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="col-12">
+    <label class="form-label">Contract Name</label>
+    <input name="name" class="form-control" required>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Client</label>
+    <select class="form-select" name="client_id" required>
+      <option value="">Select…</option>
+      {% for c in clients %}
+      <option value="{{ c.id }}">{{ c.pharma }} — {{ c.brand }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Flight Start</label>
+    <input type="date" name="flight_start" class="form-control">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">Flight End</label>
+    <input type="date" name="flight_end" class="form-control">
+  </div>
+  <div class="col-12">
+    <button class="btn btn-success">Create</button>
+  </div>
+</form>
+{% endblock %}

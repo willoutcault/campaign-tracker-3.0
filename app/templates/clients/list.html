@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h2>Clients</h2>
+  <a class="btn btn-primary" href="{{ url_for('clients.create_client') }}">New Client</a>
+</div>
+<table class="table table-sm table-striped">
+  <thead><tr><th>Pharma</th><th>Brand</th><th>Agency</th><th>Indication</th><th>Created</th></tr></thead>
+  <tbody>
+    {% for c in clients %}
+    <tr>
+      <td>{{ c.pharma }}</td><td>{{ c.brand }}</td><td>{{ c.agency }}</td><td>{{ c.indication }}</td><td>{{ c.created_at.date() }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

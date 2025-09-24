@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h2>Contracts</h2>
+  <a class="btn btn-primary" href="{{ url_for('contracts.create_contract') }}">New Contract</a>
+</div>
+<table class="table table-sm table-striped">
+  <thead><tr><th>UID</th><th>Name</th><th>Client</th><th>Flight</th><th></th></tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.contract_uid }}</td>
+      <td>{{ r.name }}</td>
+      <td>{{ r.client.pharma }} — {{ r.client.brand }}</td>
+      <td>{{ r.flight_start or '' }} → {{ r.flight_end or '' }}</td>
+      <td><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('contracts.view_contract', contract_id=r.id) }}">Open</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
