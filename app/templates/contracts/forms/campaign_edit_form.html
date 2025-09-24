@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Campaign</h2>
+
+<form method="post" class="row g-3">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="col-12">
+    <label class="form-label">Campaign Name</label>
+    <input name="name" class="form-control" value="{{ campaign.name }}" required>
+  </div>
+
+  <div class="col-12">
+    <label class="form-label">Notes (optional)</label>
+    <textarea name="notes" class="form-control" rows="4">{{ campaign.notes or "" }}</textarea>
+  </div>
+
+  <div class="col-12 d-flex gap-2">
+    <button class="btn btn-success">Save Changes</button>
+    <a class="btn btn-outline-secondary"
+       href="{{ url_for('contracts.view_contract', contract_id=campaign.contract_id) }}">
+       Cancel
+    </a>
+  </div>
+</form>
+{% endblock %}

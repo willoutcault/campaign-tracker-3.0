@@ -84,6 +84,30 @@ def create_campaign(contract_id):
         return redirect(url_for("contracts.view_contract", contract_id=contract.id))
     return render_template("contracts/forms/campaign_form.html", contract=contract)
 
+@bp.route("/campaigns/<int:campaign_id>/edit", methods=["GET", "POST"])
+def edit_campaign(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+
+    if request.method == "POST":
+        name = (request.form.get("name") or "").strip()
+        notes = (request.form.get("notes") or "").strip()
+
+        if not name:
+            flash("Campaign name is required.", "danger")
+            return redirect(url_for("contracts.edit_campaign", campaign_id=campaign.id))
+
+        campaign.name = name
+        campaign.notes = notes
+        db.session.commit()
+        flash("Campaign updated.", "success")
+        return redirect(url_for("contracts.view_contract", contract_id=campaign.contract_id))
+
+    # GET: render form prefilled
+    return render_template(
+        "contracts/forms/campaign_edit_form.html",
+        campaign=campaign
+    )
+
 # Programs
 @bp.route("/campaigns/<int:campaign_id>/programs/create", methods=["GET","POST"])
 def create_program(campaign_id):
