@@ -13,7 +13,10 @@
       <td>{{ r.name }}</td>
       <td>{{ r.client.pharma }} — {{ r.client.brand }}</td>
       <td>{{ r.flight_start or '' }} → {{ r.flight_end or '' }}</td>
-      <td><a class="btn btn-sm btn-outline-secondary" href="{{ url_for('contracts.view_contract', contract_id=r.id) }}">Open</a></td>
+      <td>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('contracts.view_contract', contract_id=r.id) }}">Open</a>
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('contracts.edit_contract', contract_id=r.id) }}">Edit</a>
+      </td>
     </tr>
     {% endfor %}
   </tbody>

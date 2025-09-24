@@ -40,6 +40,37 @@ def view_contract(contract_id):
     contract = Contract.query.get_or_404(contract_id)
     return render_template("contracts/detail.html", contract=contract)
 
+@bp.route("/<int:contract_id>/edit", methods=["GET", "POST"])
+def edit_contract(contract_id):
+    contract = Contract.query.get_or_404(contract_id)
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        client_id = request.form.get("client_id")
+        start = request.form.get("flight_start") or None
+        end = request.form.get("flight_end") or None
+
+        if not name or not client_id:
+            flash("Name and Client are required.", "danger")
+            return redirect(url_for("contracts.edit_contract", contract_id=contract.id))
+
+        contract.name = name
+        contract.client_id = int(client_id)
+        contract.flight_start = (date.fromisoformat(start) if start else None)
+        contract.flight_end = (date.fromisoformat(end) if end else None)
+
+        db.session.commit()
+        flash("Contract updated.", "success")
+        return redirect(url_for("contracts.view_contract", contract_id=contract.id))
+
+    # GET: render form prefilled
+    clients = Client.query.order_by(Client.pharma.asc()).all()
+    return render_template(
+        "contracts/forms/contract_edit_form.html",
+        contract=contract,
+        clients=clients
+    )
+
 # Campaigns
 @bp.route("/<int:contract_id>/campaigns/create", methods=["GET","POST"])
 def create_campaign(contract_id):

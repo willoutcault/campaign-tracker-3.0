@@ -5,15 +5,17 @@
 
 <div class="mb-3">
   <a class="btn btn-sm btn-primary" href="{{ url_for('contracts.create_campaign', contract_id=contract.id) }}">Add Campaign</a>
-  <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('contracts.create_placement') }}">New Placement</a>
+  <a class="btn btn-sm btn-outline-primary" href="{{ url_for('contracts.edit_contract', contract_id=contract.id) }}">Edit Contract</a>
 </div>
 
 {% for camp in contract.campaigns %}
   <div class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">{{ camp.name }}</h5>
-      <a class="btn btn-sm btn-outline-primary" href="{{ url_for('contracts.create_program', campaign_id=camp.id) }}">Add Program</a>
-      <ul class="mt-2">
+      <div class="mb-3">
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('contracts.create_program', campaign_id=camp.id) }}">Add Program</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('contracts.create_placement') }}">New Placement</a>
+        <ul class="mt-2">
         {% for prog in camp.programs %}
           <li>
             <strong>{{ prog.name }}</strong> ({{ prog.status }}) {{ prog.start_date or "" }} → {{ prog.end_date or "" }}

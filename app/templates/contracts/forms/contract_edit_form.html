@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Contract — {{ contract.contract_uid }}</h2>
+
+<form method="post" class="row g-3">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="col-12">
+    <label class="form-label">Contract Name</label>
+    <input name="name" class="form-control" value="{{ contract.name }}" required>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Client</label>
+    <select class="form-select" name="client_id" required>
+      {% for c in clients %}
+        <option value="{{ c.id }}" {% if c.id == contract.client_id %}selected{% endif %}>
+          {{ c.pharma }} — {{ c.brand }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    <label class="form-label">Flight Start</label>
+    <input type="date" name="flight_start" class="form-control"
+           value="{{ contract.flight_start if contract.flight_start }}">
+  </div>
+
+  <div class="col-md-3">
+    <label class="form-label">Flight End</label>
+    <input type="date" name="flight_end" class="form-control"
+           value="{{ contract.flight_end if contract.flight_end }}">
+  </div>
+
+  <div class="col-12 d-flex gap-2">
+    <button class="btn btn-success">Save Changes</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('contracts.view_contract', contract_id=contract.id) }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}
