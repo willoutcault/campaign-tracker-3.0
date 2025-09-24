@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, g, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, generate_csrf
@@ -17,6 +17,17 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+
+    @app.context_processor
+    def inject_breadcrumbs():
+        """
+        Views can set g.breadcrumbs = [(label, url_or_None), ...]
+        If not set, we fall back to a sane default.
+        """
+        trail = getattr(g, "breadcrumbs", None)
+        if not trail:
+            trail = [("Home", url_for("index"))]
+        return dict(breadcrumbs=trail)
 
     @app.context_processor
     def inject_csrf():

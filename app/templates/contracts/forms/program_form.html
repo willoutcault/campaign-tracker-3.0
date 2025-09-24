@@ -1,62 +1,40 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>New Program for Campaign: {{ campaign.name }}</h2>
+
 <form method="post" class="row g-3">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
   <div class="col-md-6">
     <label class="form-label">Program Name</label>
     <input name="name" class="form-control" required>
   </div>
+
   <div class="col-md-3">
     <label class="form-label">Status</label>
     <input name="status" class="form-control" value="DRAFT">
   </div>
+
   <div class="col-md-3">
     <label class="form-label">Start Date</label>
     <input type="date" name="start_date" class="form-control">
   </div>
+
   <div class="col-md-3">
     <label class="form-label">End Date</label>
     <input type="date" name="end_date" class="form-control">
   </div>
-  <div class="col-12">
+
+  <div class="col-12 d-flex gap-2">
     <button class="btn btn-success">Create</button>
+    <a class="btn btn-outline-secondary"
+       href="{{ url_for('contracts.view_contract', contract_id=campaign.contract_id) }}">
+       Cancel
+    </a>
   </div>
 </form>
 
-<hr>
-<h4>Attach Target List</h4>
-<form method="post" action="{{ url_for('contracts.attach_target_list', program_id=0) }}" onsubmit="this.action=this.action.replace('0','{{ campaign.programs[-1].id if campaign.programs|length else 0 }}')">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <div class="row g-2">
-    <div class="col-md-8">
-      <select name="target_list_id" class="form-select">
-        {% for tl in lists %}
-          <option value="{{ tl.id }}">{{ tl.title }} ({{ tl.use_case.value }})</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-md-4">
-      <button class="btn btn-outline-primary w-100">Attach</button>
-    </div>
-  </div>
-</form>
-
-<hr>
-<h4>Map Placement</h4>
-<form method="post" action="{{ url_for('contracts.map_placement', program_id=0) }}" onsubmit="this.action=this.action.replace('0','{{ campaign.programs[-1].id if campaign.programs|length else 0 }}')">
-  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-  <div class="row g-2">
-    <div class="col-md-8">
-      <select name="placement_id" class="form-select">
-        {% for p in placements %}
-          <option value="{{ p.id }}">{{ p.name }} — {{ p.channel }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-md-4">
-      <button class="btn btn-outline-primary w-100">Map</button>
-    </div>
-  </div>
-</form>
+<p class="text-muted mt-3">
+  After creating the program, you’ll be redirected to the Program page to attach target lists and map placements.
+</p>
 {% endblock %}

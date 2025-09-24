@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Program: {{ program.name }}</h2>
+<p class="text-muted">
+  Contract: {{ program.campaign.contract.name }} —
+  Campaign: {{ program.campaign.name }}
+</p>
+
+<h4 class="mt-3">Attach Target List</h4>
+<form method="post" action="{{ url_for('contracts.attach_target_list', program_id=program.id) }}" class="row g-2">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="col-md-8">
+    <select name="target_list_id" class="form-select">
+      {% for tl in lists %}
+        <option value="{{ tl.id }}">{{ tl.title }} ({{ tl.use_case.value }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-4">
+    <button class="btn btn-outline-primary w-100">Attach</button>
+  </div>
+</form>
+
+<h4 class="mt-4">Map Placement</h4>
+<form method="post" action="{{ url_for('contracts.map_placement', program_id=program.id) }}" class="row g-2">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="col-md-8">
+    <select name="placement_id" class="form-select">
+      {% for p in placements %}
+        <option value="{{ p.id }}">{{ p.name }} — {{ p.channel }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-4">
+    <button class="btn btn-outline-primary w-100">Map</button>
+  </div>
+</form>
+
+<hr class="my-4">
+
+<h5 class="mb-2">Current Placements</h5>
+<ul>
+  {% for pl in program.placements %}
+    <li>{{ pl.name }} — {{ pl.channel or 'n/a' }}</li>
+  {% else %}
+    <li class="text-muted">None mapped yet</li>
+  {% endfor %}
+</ul>
+
+<h5 class="mt-4 mb-2">Attached Target Lists</h5>
+<ul>
+  {% for ptl in program.program_target_lists %}
+    <li>{{ ptl.target_list.title }} ({{ ptl.target_list.use_case.value }})</li>
+  {% else %}
+    <li class="text-muted">None attached yet</li>
+  {% endfor %}
+</ul>
+
+<div class="mt-4">
+  <a class="btn btn-secondary" href="{{ url_for('contracts.view_contract', contract_id=program.campaign.contract_id) }}">Back to Contract</a>
+</div>
+{% endblock %}

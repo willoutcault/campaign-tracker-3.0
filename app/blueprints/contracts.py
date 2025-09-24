@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, g
 from datetime import date
 import uuid
 from .. import db
@@ -9,6 +9,7 @@ bp = Blueprint("contracts", __name__)
 # Contracts
 @bp.route("/")
 def list_contracts():
+    g.breadcrumbs = [("Home", url_for("index")), ("Contracts", None)]
     rows = Contract.query.order_by(Contract.created_at.desc()).all()
     return render_template("contracts/list.html", rows=rows)
 
@@ -38,12 +39,16 @@ def create_contract():
 @bp.route("/<int:contract_id>")
 def view_contract(contract_id):
     contract = Contract.query.get_or_404(contract_id)
+    g.breadcrumbs = [
+        ("Home", url_for("index")),
+        ("Contracts", url_for("contracts.list_contracts")),
+        (contract.name, None),
+    ]
     return render_template("contracts/detail.html", contract=contract)
 
 @bp.route("/<int:contract_id>/edit", methods=["GET", "POST"])
 def edit_contract(contract_id):
     contract = Contract.query.get_or_404(contract_id)
-
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         client_id = request.form.get("client_id")
@@ -87,7 +92,12 @@ def create_campaign(contract_id):
 @bp.route("/campaigns/<int:campaign_id>/edit", methods=["GET", "POST"])
 def edit_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
-
+    g.breadcrumbs = [
+        ("Home", url_for("index")),
+        ("Contracts", url_for("contracts.list_contracts")),
+        (campaign.contract.name, url_for("contracts.view_contract", contract_id=campaign.contract_id)),
+        (f"Edit Campaign: {campaign.name}", None),
+    ]
     if request.method == "POST":
         name = (request.form.get("name") or "").strip()
         notes = (request.form.get("notes") or "").strip()
@@ -125,14 +135,35 @@ def create_program(campaign_id):
             start_date=date.fromisoformat(start) if start else None,
             end_date=date.fromisoformat(end) if end else None,
         )
+        # inside create_program (POST branch)
         db.session.add(p)
         db.session.commit()
         flash("Program created", "success")
-        return redirect(url_for("contracts.view_contract", contract_id=campaign.contract_id))
+        return redirect(url_for("contracts.view_program", program_id=p.id))  # <-- change to this
 
     lists = TargetList.query.join(TargetList.clients).filter(Client.id == client_id).all()
     placements = Placement.query.order_by(Placement.name.asc()).all()
     return render_template("contracts/forms/program_form.html", campaign=campaign, lists=lists, placements=placements)
+
+@bp.route("/programs/<int:program_id>")
+def view_program(program_id):
+    program = Program.query.get_or_404(program_id)
+    g.breadcrumbs = [
+        ("Home", url_for("index")),
+        ("Contracts", url_for("contracts.list_contracts")),
+        (program.campaign.contract.name, url_for("contracts.view_contract", contract_id=program.campaign.contract_id)),
+        (program.campaign.name, None),
+        (program.name, None),
+    ]
+    client_id = program.campaign.contract.client_id
+    lists = TargetList.query.join(TargetList.clients).filter(Client.id == client_id).all()
+    placements = Placement.query.order_by(Placement.name.asc()).all()
+    return render_template(
+        "contracts/forms/program_detail.html",
+        program=program,
+        lists=lists,
+        placements=placements
+    )
 
 @bp.route("/programs/<int:program_id>/attach-target-list", methods=["POST"])
 def attach_target_list(program_id):

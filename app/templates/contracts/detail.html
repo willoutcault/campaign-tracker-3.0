@@ -19,12 +19,16 @@
         <ul class="mt-2">
         {% for prog in camp.programs %}
           <li>
-            <strong>{{ prog.name }}</strong> ({{ prog.status }}) {{ prog.start_date or "" }} → {{ prog.end_date or "" }}
+            <strong>{{ prog.name }}</strong> ({{ prog.status }})
+            <a class="btn btn-sm btn-outline-primary ms-2"
+              href="{{ url_for('contracts.view_program', program_id=prog.id) }}">
+              Manage
+            </a>
             <div class="small text-muted">Placements:
-              {% for pl in prog.placements %} {{ pl.name }}{% if not loop.last %}, {% endif %}{% else %} none{% endfor %}
+              {% for pl in prog.placements %}{{ pl.name }}{% if not loop.last %}, {% endif %}{% else %} none{% endfor %}
             </div>
             <div class="small text-muted">Target Lists:
-              {% for ptl in prog.program_target_lists %} {{ ptl.target_list.title }}{% if not loop.last %}, {% endif %}{% else %} none{% endfor %}
+              {% for ptl in prog.program_target_lists %}{{ ptl.target_list.title }}{% if not loop.last %}, {% endif %}{% else %} none{% endfor %}
             </div>
           </li>
         {% endfor %}
