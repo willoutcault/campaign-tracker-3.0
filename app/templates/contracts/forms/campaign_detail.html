@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-1">Campaign: {{ campaign.name }}</h2>
+<p class="text-muted mb-3">
+  Contract: <a href="{{ url_for('contracts.view_contract', contract_id=contract.id) }}">{{ contract.name }}</a>
+</p>
+
+<div class="d-flex gap-2 mb-3">
+  <a class="btn btn-sm btn-primary"
+     href="{{ url_for('contracts.create_program', campaign_id=campaign.id) }}">
+    Add Program
+  </a>
+  <a class="btn btn-sm btn-outline-secondary"
+     href="{{ url_for('contracts.create_placement') }}">
+    New Placement
+  </a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Programs</h5>
+        <ul class="mb-0">
+          {% for prog in programs %}
+            <li class="mb-1">
+              <a href="{{ url_for('contracts.view_program', program_id=prog.id) }}">{{ prog.name }}</a>
+              <span class="text-muted">({{ prog.status }})</span>
+              {% if prog.start_date or prog.end_date %}
+                <span class="text-muted">— {{ prog.start_date or "?" }} → {{ prog.end_date or "?" }}</span>
+              {% endif %}
+            </li>
+          {% else %}
+            <li class="text-muted">No programs yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Add Placement to a Program</h5>
+        <form method="post" action="{{ url_for('contracts.campaign_map_placement', campaign_id=campaign.id) }}" class="row g-2">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="col-12">
+            <label class="form-label">Program</label>
+            <select name="program_id" class="form-select">
+              {% for prog in programs %}
+                <option value="{{ prog.id }}">{{ prog.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Placement</label>
+            <select name="placement_id" class="form-select">
+              {% for pl in all_placements %}
+                <option value="{{ pl.id }}">{{ pl.name }} — {{ pl.channel or 'n/a' }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-outline-primary w-100">Map Placement</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Current Placements (any program)</h5>
+        <ul class="mb-0">
+          {% for pl in placements %}
+            <li>{{ pl.name }} <span class="text-muted">— {{ pl.channel or 'n/a' }}</span></li>
+          {% else %}
+            <li class="text-muted">None yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

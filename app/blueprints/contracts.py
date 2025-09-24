@@ -89,6 +89,52 @@ def create_campaign(contract_id):
         return redirect(url_for("contracts.view_contract", contract_id=contract.id))
     return render_template("contracts/forms/campaign_form.html", contract=contract)
 
+@bp.route("/campaigns/<int:campaign_id>")
+def view_campaign(campaign_id):
+    from flask import g, url_for
+    campaign = Campaign.query.get_or_404(campaign_id)
+    contract = campaign.contract
+    placement_set = {pl for prog in campaign.programs for pl in prog.placements}
+    placements = sorted(placement_set, key=lambda p: (p.channel or "", p.name.lower()))
+    all_programs = campaign.programs
+    all_placements = Placement.query.order_by(Placement.name.asc()).all()
+
+    # breadcrumbs
+    g.breadcrumbs = [
+        ("Home", url_for("index")),
+        ("Contracts", url_for("contracts.list_contracts")),
+        (contract.name, url_for("contracts.view_contract", contract_id=contract.id)),
+        (campaign.name, None),
+    ]
+
+    return render_template(
+        "contracts/forms/campaign_detail.html",
+        campaign=campaign,
+        contract=contract,
+        programs=all_programs,
+        placements=placements,
+        all_placements=all_placements,
+    )
+
+@bp.route("/campaigns/<int:campaign_id>/map-placement", methods=["POST"])
+def campaign_map_placement(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    program_id = int(request.form.get("program_id"))
+    placement_id = int(request.form.get("placement_id"))
+
+    program = Program.query.get_or_404(program_id)
+    if program.campaign_id != campaign.id:
+        flash("Selected program does not belong to this campaign.", "danger")
+        return redirect(url_for("contracts.view_campaign", campaign_id=campaign.id))
+
+    placement = Placement.query.get_or_404(placement_id)
+    if not program.placements.filter_by(id=placement.id).first():
+        program.placements.append(placement)
+        db.session.commit()
+
+    flash("Placement mapped to program.", "success")
+    return redirect(url_for("contracts.view_campaign", campaign_id=campaign.id))
+
 @bp.route("/campaigns/<int:campaign_id>/edit", methods=["GET", "POST"])
 def edit_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
@@ -151,8 +197,12 @@ def view_program(program_id):
     g.breadcrumbs = [
         ("Home", url_for("index")),
         ("Contracts", url_for("contracts.list_contracts")),
-        (program.campaign.contract.name, url_for("contracts.view_contract", contract_id=program.campaign.contract_id)),
-        (program.campaign.name, None),
+        (program.campaign.contract.name,
+         url_for("contracts.view_contract", contract_id=program.campaign.contract_id)),
+        (program.campaign.name,
+         url_for("contracts.view_contract",
+                 contract_id=program.campaign.contract_id,
+                 _anchor=f"campaign-{program.campaign.id}")),
         (program.name, None),
     ]
     client_id = program.campaign.contract.client_id
