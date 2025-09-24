@@ -198,11 +198,9 @@ def view_program(program_id):
         ("Home", url_for("index")),
         ("Contracts", url_for("contracts.list_contracts")),
         (program.campaign.contract.name,
-         url_for("contracts.view_contract", contract_id=program.campaign.contract_id)),
+        url_for("contracts.view_contract", contract_id=program.campaign.contract_id)),
         (program.campaign.name,
-         url_for("contracts.view_contract",
-                 contract_id=program.campaign.contract_id,
-                 _anchor=f"campaign-{program.campaign.id}")),
+        url_for("contracts.view_campaign", campaign_id=program.campaign_id)),  # <-- exists now
         (program.name, None),
     ]
     client_id = program.campaign.contract.client_id
