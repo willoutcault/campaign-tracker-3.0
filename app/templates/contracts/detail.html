@@ -18,8 +18,10 @@
         </a>
       </h5>
       <div class="mb-3">
-        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('contracts.create_program', campaign_id=camp.id) }}">Add Program</a>
-        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('contracts.create_placement') }}">New Placement</a>
+        <a class="btn btn-sm btn-primary"
+        href="{{ url_for('contracts.manage_programs', campaign_id=camp.id) }}">
+        Manage Programs
+        </a>
         <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('contracts.edit_campaign', campaign_id=camp.id) }}"> Edit </a>
         <ul class="mt-2">
         {% for prog in camp.programs %}

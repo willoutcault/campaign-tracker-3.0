@@ -6,14 +6,14 @@
 </p>
 
 <div class="d-flex gap-2 mb-3">
-  <a class="btn btn-sm btn-primary"
-     href="{{ url_for('contracts.create_program', campaign_id=campaign.id) }}">
-    Add Program
-  </a>
-  <a class="btn btn-sm btn-outline-secondary"
+    <a class="btn btn-sm btn-primary"
+    href="{{ url_for('contracts.manage_programs', campaign_id=campaign.id) }}">
+    Manage Programs
+    </a>
+    <a class="btn btn-sm btn-outline-secondary"
      href="{{ url_for('contracts.create_placement') }}">
     New Placement
-  </a>
+    </a>
 </div>
 
 <div class="row g-3">

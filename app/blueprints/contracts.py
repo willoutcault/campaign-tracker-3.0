@@ -165,31 +165,56 @@ def edit_campaign(campaign_id):
     )
 
 # Programs
-@bp.route("/campaigns/<int:campaign_id>/programs/create", methods=["GET","POST"])
-def create_program(campaign_id):
+@bp.route("/campaigns/<int:campaign_id>/programs", methods=["GET", "POST"])
+def manage_programs(campaign_id):
+    from flask import g
     campaign = Campaign.query.get_or_404(campaign_id)
-    client_id = campaign.contract.client_id
+    contract = campaign.contract
+
     if request.method == "POST":
-        name = request.form.get("name")
-        status = request.form.get("status")
+        # Create a new program from the inline form
+        name = (request.form.get("name") or "").strip()
+        status = (request.form.get("status") or "DRAFT").strip()
         start = request.form.get("start_date") or None
         end = request.form.get("end_date") or None
+
+        if not name:
+            flash("Program name is required.", "danger")
+            return redirect(url_for("contracts.manage_programs", campaign_id=campaign.id))
+
         p = Program(
             campaign_id=campaign.id,
             name=name,
             status=status or "DRAFT",
-            start_date=date.fromisoformat(start) if start else None,
-            end_date=date.fromisoformat(end) if end else None,
+            start_date=(date.fromisoformat(start) if start else None),
+            end_date=(date.fromisoformat(end) if end else None),
         )
-        # inside create_program (POST branch)
         db.session.add(p)
         db.session.commit()
-        flash("Program created", "success")
-        return redirect(url_for("contracts.view_program", program_id=p.id))  # <-- change to this
+        flash("Program created.", "success")
+        return redirect(url_for("contracts.manage_programs", campaign_id=campaign.id))
 
+    # GET: render page with all programs + helpers for attach/map
+    client_id = contract.client_id
     lists = TargetList.query.join(TargetList.clients).filter(Client.id == client_id).all()
-    placements = Placement.query.order_by(Placement.name.asc()).all()
-    return render_template("contracts/forms/program_form.html", campaign=campaign, lists=lists, placements=placements)
+    all_placements = Placement.query.order_by(Placement.name.asc()).all()
+
+    # Breadcrumbs
+    g.breadcrumbs = [
+        ("Home", url_for("index")),
+        ("Contracts", url_for("contracts.list_contracts")),
+        (contract.name, url_for("contracts.view_contract", contract_id=contract.id)),
+        (f"Programs — {campaign.name}", None),
+    ]
+
+    return render_template(
+        "contracts/forms/programs_manage.html",
+        campaign=campaign,
+        contract=contract,
+        programs=campaign.programs,
+        lists=lists,
+        all_placements=all_placements,
+    )
 
 @bp.route("/programs/<int:program_id>")
 def view_program(program_id):

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-1">Programs — {{ campaign.name }}</h2>
+<p class="text-muted mb-3">
+  Contract: <a href="{{ url_for('contracts.view_contract', contract_id=contract.id) }}">{{ contract.name }}</a>
+</p>
+
+<div class="row g-3">
+  <!-- Create Program -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Create Program</h5>
+        <form method="post" class="row g-2">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="col-12">
+            <label class="form-label">Name</label>
+            <input name="name" class="form-control" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Status</label>
+            <input name="status" class="form-control" value="DRAFT">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Start</label>
+            <input type="date" name="start_date" class="form-control">
+          </div>
+          <div class="col-6">
+            <label class="form-label">End</label>
+            <input type="date" name="end_date" class="form-control">
+          </div>
+          <div class="col-12">
+            <button class="btn btn-success w-100">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Programs list with inline actions -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Existing Programs</h5>
+        <div class="list-group">
+          {% for prog in programs %}
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ prog.name }}</strong>
+                  <span class="text-muted">({{ prog.status }})</span>
+                  {% if prog.start_date or prog.end_date %}
+                    <span class="text-muted">— {{ prog.start_date or "?" }} → {{ prog.end_date or "?" }}</span>
+                  {% endif %}
+                  <div class="small text-muted mt-1">
+                    Placements:
+                    {% for pl in prog.placements %}{{ pl.name }}{% if not loop.last %}, {% endif %}{% else %}none{% endfor %}
+                  </div>
+                  <div class="small text-muted">
+                    Target Lists:
+                    {% for ptl in prog.program_target_lists %}{{ ptl.target_list.title }}{% if not loop.last %}, {% endif %}{% else %}none{% endfor %}
+                  </div>
+                </div>
+                <div class="ms-3">
+                  <a class="btn btn-sm btn-outline-secondary"
+                     href="{{ url_for('contracts.view_program', program_id=prog.id) }}">
+                    Open
+                  </a>
+                </div>
+              </div>
+
+              <!-- Inline attach target list -->
+              <form method="post"
+                    action="{{ url_for('contracts.attach_target_list', program_id=prog.id) }}"
+                    class="row g-2 mt-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="col-md-8">
+                  <select name="target_list_id" class="form-select">
+                    {% for tl in lists %}
+                      <option value="{{ tl.id }}">{{ tl.title }} ({{ tl.use_case.value }})</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-outline-primary w-100">Attach List</button>
+                </div>
+              </form>
+
+              <!-- Inline map placement -->
+              <form method="post"
+                    action="{{ url_for('contracts.map_placement', program_id=prog.id) }}"
+                    class="row g-2 mt-2">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="col-md-8">
+                  <select name="placement_id" class="form-select">
+                    {% for p in all_placements %}
+                      <option value="{{ p.id }}">{{ p.name }} — {{ p.channel or 'n/a' }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-outline-primary w-100">Map Placement</button>
+                </div>
+              </form>
+            </div>
+          {% else %}
+            <div class="text-muted p-3">No programs yet—create one on the left.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
